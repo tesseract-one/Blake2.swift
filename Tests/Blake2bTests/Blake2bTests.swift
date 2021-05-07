@@ -26,9 +26,9 @@ final class Blake2bTests: XCTestCase {
         for step in 1..<BLAKE2B_BLOCKBYTES {
             for i in 0..<BLAKE2B_KAT.count {
                 let (_, key, expected) = BLAKE2B_KAT[i]
-                let blake2 = Blake2b(size: 64, key: key)
-                XCTAssertNotNil(blake2)
-                guard var blake2 = blake2 else { continue }
+                let oBlake2 = Blake2b(size: 64, key: key)
+                XCTAssertNotNil(oBlake2)
+                guard var blake2 = oBlake2 else { continue }
                 
                 var mlen = i, start = 0
                 
