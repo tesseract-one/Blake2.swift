@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name             = 'Blake2b'
+  s.name             = 'Blake2b.swift'
   s.version          = '0.1.0'
   s.summary          = 'Swift wrapper for reference C implementation of Blake2b hash.'
 
