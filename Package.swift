@@ -4,23 +4,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "Blake2b",
+    name: "Blake2",
     products: [
         .library(
-            name: "Blake2b",
-            targets: ["Blake2b"]),
+            name: "Blake2",
+            targets: ["Blake2"]),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "Blake2b",
-            dependencies: ["CBlake2b"]),
+            name: "Blake2",
+            dependencies: ["CBlake2"]),
         .target(
-            name: "CBlake2b",
+            name: "CBlake2",
             dependencies: []
         ),
         .testTarget(
-            name: "Blake2bTests",
-            dependencies: ["Blake2b"])
+            name: "Blake2Tests",
+            dependencies: ["Blake2"])
     ]
 )
