@@ -6,7 +6,7 @@
 [![GitHub release](https://img.shields.io/github/release/tesseract-one/Blake2.swift.svg)](https://github.com/tesseract-one/Blake2.swift/releases)
 [![SPM compatible](https://img.shields.io/badge/SwiftPM-Compatible-brightgreen.svg)](https://swift.org/package-manager/)
 [![CocoaPods version](https://img.shields.io/cocoapods/v/Blake2.svg)](https://cocoapods.org/pods/Blake2)
-![Platform OS X | iOS | tvOS | watchOS | Linux](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X%20%7C%20iOS%20%7C%20tvOS%20%7C%20watchOS-orange.svg)
+![Platform macOS | iOS | tvOS | watchOS | Linux](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20iOS%20%7C%20tvOS%20%7C%20watchOS-orange.svg)
 
 Swift wrapper for [reference C implementation](https://github.com/BLAKE2/BLAKE2) of [BLAKE2](https://en.wikipedia.org/wiki/BLAKE_(hash_function)#BLAKE2) hash functions.
 
