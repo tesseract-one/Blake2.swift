@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Blake2'
-  s.version          = '0.1.0'
+  s.version          = '0.1.1'
   s.summary          = 'Swift wrapper for reference C implementation of Blake2 hashes.'
 
   s.description      = <<-DESC

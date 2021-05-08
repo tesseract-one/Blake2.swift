@@ -78,7 +78,7 @@ int blake2xs_final(blake2xs_state *S, void *out, size_t outlen) {
   blake2s_param P[1];
   uint16_t xof_length = load16(&S->P->xof_length);
   uint8_t root[BLAKE2S_BLOCKBYTES];
-  size_t i;
+  uint32_t i;
 
   if (NULL == out) {
     return -1;
