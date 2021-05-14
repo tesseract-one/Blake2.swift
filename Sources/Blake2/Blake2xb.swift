@@ -39,6 +39,6 @@ struct Blake2xb: Blake2Impl {
         bytes: UnsafeBufferPointer<UInt8>,
         key: UnsafeBufferPointer<UInt8>?
     ) -> Bool {
-        blake2xb(out.baseAddress, out.count, bytes.baseAddress, bytes.count, key?.baseAddress, key?.count ?? -1) == 0
+        blake2xb(out.baseAddress, out.count, bytes.baseAddress, bytes.count, key?.baseAddress, key?.count ?? 0) == 0
     }
 }
