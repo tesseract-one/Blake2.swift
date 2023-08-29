@@ -20,13 +20,13 @@ Setup instructions:
   Add this to the dependency section of your `Package.swift` manifest:
 
     ```Swift
-    .package(url: "https://github.com/tesseract-one/Blake2.swift.git", from: "0.1.0")
+    .package(url: "https://github.com/tesseract-one/Blake2.swift.git", from: "0.2.0")
     ```
 
 - **CocoaPods:** Put this in your `Podfile`:
 
     ```Ruby
-    pod 'Blake2', '~> 0.1'
+    pod 'Blake2', '~> 0.2'
     ```
 
 ## Usage Examples
