@@ -10,11 +10,13 @@ import Foundation
 import CBlake2
 #endif
 
-struct Blake2s: Blake2Impl {
+public struct Blake2s: Blake2Hash {
+    public let size: Int
     private var state: blake2s_state
     
-    init?(size: Int, key: UnsafeBufferPointer<UInt8>?) {
-        state = blake2s_state()
+    public init?(size: Int, key: UnsafeRawBufferPointer?) {
+        self.size = size
+        self.state = blake2s_state()
         let res: Int32
         if let key = key {
             res = blake2s_init_key(&state, size, key.baseAddress, key.count)
@@ -26,19 +28,20 @@ struct Blake2s: Blake2Impl {
         }
     }
     
-    mutating func update(from: UnsafeBufferPointer<UInt8>) -> Bool {
+    public mutating func update(from: UnsafeRawBufferPointer) -> Bool {
         blake2s_update(&state, from.baseAddress, from.count) == 0
     }
     
-    mutating func finalize(out: UnsafeMutableBufferPointer<UInt8>) -> Bool {
+    public mutating func finalize(out: UnsafeMutableRawBufferPointer) -> Bool {
         blake2s_final(&state, out.baseAddress, out.count) == 0
     }
     
-    static func hash(
-        out: UnsafeMutableBufferPointer<UInt8>,
-        bytes: UnsafeBufferPointer<UInt8>,
-        key: UnsafeBufferPointer<UInt8>?
+    public static func hash(
+        out: UnsafeMutableRawBufferPointer,
+        bytes: UnsafeRawBufferPointer,
+        key: UnsafeRawBufferPointer?
     ) -> Bool {
-        blake2s(out.baseAddress, out.count, bytes.baseAddress, bytes.count, key?.baseAddress, key?.count ?? 0) == 0
+        blake2s(out.baseAddress, out.count, bytes.baseAddress, bytes.count,
+                key?.baseAddress, key?.count ?? 0) == 0
     }
 }

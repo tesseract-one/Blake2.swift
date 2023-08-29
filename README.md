@@ -37,12 +37,12 @@ import Blake2
 let data = Data("some data for hashing".utf8)
 
 // Simple hash api. 64 byte Blake2b hash.
-let hash = try! Blake2.hash(.b2b, size: 64, data: data)
+let hash = try! Blake2b.hash(size: 64, data: data)
 print("Hash", hash)
 
 // Streaming hash api. 64 byte Blake2b hash.
 // Create hasher object
-var hasher = try! Blake2(.b2b, size: 64)
+var hasher = try! Blake2b(size: 64)
 // insert data by chunks
 hasher.update(data)
 // and then finalize hasher

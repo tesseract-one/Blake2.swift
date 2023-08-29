@@ -26,5 +26,6 @@ Swift wrapper for reference C implementation of Blake2 hashes.
   s.test_spec 'Tests' do |ts|
     ts.platforms = base_platforms
     ts.source_files = 'Tests/Blake2Tests/**/*.swift'
+    ts.resource = 'Tests/SubstrateTests/blake2-kat.json'
   end
 end

@@ -7,139 +7,61 @@
 
 import Foundation
 
-protocol Blake2Impl {
-    init?(size: Int, key: UnsafeBufferPointer<UInt8>?)
-    mutating func update(from: UnsafeBufferPointer<UInt8>) -> Bool
-    mutating func finalize(out: UnsafeMutableBufferPointer<UInt8>) -> Bool
+public enum Blake2Error: Swift.Error {
+    case initializationError
+    case finalizationError
+    case hashingError
+}
+
+public protocol Blake2Hash {
+    var size: Int { get }
+    init?(size: Int, key: UnsafeRawBufferPointer?)
+    mutating func update(from: UnsafeRawBufferPointer) -> Bool
+    mutating func finalize(out: UnsafeMutableRawBufferPointer) -> Bool
     static func hash(
-        out: UnsafeMutableBufferPointer<UInt8>,
-        bytes: UnsafeBufferPointer<UInt8>,
-        key: UnsafeBufferPointer<UInt8>?
+        out: UnsafeMutableRawBufferPointer,
+        bytes: UnsafeRawBufferPointer,
+        key: UnsafeRawBufferPointer?
     ) -> Bool
 }
 
-public struct Blake2 {
-    public enum B2Type {
-        case b2b
-        case b2bp
-        case b2s
-        case b2sp
-        case b2xb
-        case b2xs
+public extension Blake2Hash {
+    @inlinable init(size: Int) throws {
+        try self.init(size: size, key: nil as Data?)
     }
     
-    public enum Error: Swift.Error {
-        case initializationError
-        case alreadyFinalized
-        case finalizationError
-        case hashingError
+    @inlinable init<K: DataPtrRepresentable>(size: Int, key: K?) throws {
+        let impl = key.withPtr { Self(size: size, key: $0) }
+        guard let hasher = impl else { throw Blake2Error.initializationError }
+        self = hasher
     }
     
-    public init(_ type: B2Type, size: Int, key: [UInt8]? = nil) throws {
-        let impl: Blake2Impl?
-        if let key = key {
-            impl = key.withUnsafeBufferPointer { bytes in
-                Self.implementation(for: type).init(size: size, key: bytes)
-            }
-        } else {
-            impl = Self.implementation(for: type).init(size: size, key: nil)
-        }
-        guard let implementation = impl else { throw Error.initializationError }
-        self.implementation = implementation
-        self.size = size
-    }
-    
-    public mutating func update(_ data: Data) {
+    @inlinable mutating func update<D: DataPtrRepresentable>(_ data: D) {
         guard size > 0 else { return }
-        let _ = data.withUnsafeBytes { bytes in
-            self.implementation.update(from: bytes.bindMemory(to: UInt8.self))
-        }
-    }
-    public mutating func update(_ bytes: [UInt8]) {
-        guard size > 0 else { return }
-        let _ = bytes.withUnsafeBufferPointer { bytes in
-            self.implementation.update(from: bytes)
-        }
+        let _ = data.withPtr { self.update(from: $0) }
     }
     
-    public mutating func finalize() throws -> Data {
-        guard size >= 0 else { throw Error.alreadyFinalized }
+    @inlinable mutating func finalize() throws -> Data {
         var data = Data(repeating: 0, count: size)
-        let res = data.withUnsafeMutableBytes { bytes in
-            self.implementation.finalize(out: bytes.bindMemory(to: UInt8.self))
-        }
-        size = -1
-        guard res else { throw Error.finalizationError }
+        let res = data.withMutPtr { self.finalize(out: $0) }
+        guard res else { throw Blake2Error.finalizationError }
         return data
     }
     
-    public static func hash(_ type: B2Type, size: Int, data: Data, key: [UInt8]? = nil) throws -> Data {
-        let res: Bool
-        var out: Data = Data(repeating: 0, count: size)
-        if let key = key {
-            res = out.withUnsafeMutableBytes { out in
-                key.withUnsafeBufferPointer { key in
-                    data.withUnsafeBytes { data in
-                        implementation(for: type).hash(
-                            out: out.bindMemory(to: UInt8.self),
-                            bytes: data.bindMemory(to: UInt8.self), key: key
-                        )
-                    }
-                }
-            }
-        } else {
-            res = out.withUnsafeMutableBytes { out in
-                data.withUnsafeBytes { data in
-                    implementation(for: type).hash(
-                        out: out.bindMemory(to: UInt8.self),
-                        bytes: data.bindMemory(to: UInt8.self), key: nil
-                    )
-                }
-            }
-        }
-        guard res else { throw Error.hashingError }
-        return out
+    @inlinable static func hash<D: DataPtrRepresentable>(
+        size: Int, data: D
+    ) throws -> Data {
+        try hash(size: size, data: data, key: nil as Data?)
     }
     
-    public static func hash(_ type: B2Type, size: Int, bytes: [UInt8], key: [UInt8]? = nil) throws -> Data {
-        let res: Bool
+    @inlinable static func hash<D, K>(size: Int, data: D, key: K?) throws -> Data
+        where D: DataPtrRepresentable, K: DataPtrRepresentable
+    {
         var out: Data = Data(repeating: 0, count: size)
-        if let key = key {
-            res = out.withUnsafeMutableBytes { out in
-                key.withUnsafeBufferPointer { key in
-                    bytes.withUnsafeBufferPointer { bytes in
-                        implementation(for: type).hash(
-                            out: out.bindMemory(to: UInt8.self),
-                            bytes: bytes, key: key
-                        )
-                    }
-                }
-            }
-        } else {
-            res = out.withUnsafeMutableBytes { out in
-                bytes.withUnsafeBufferPointer { bytes in
-                    implementation(for: type).hash(
-                        out: out.bindMemory(to: UInt8.self),
-                        bytes: bytes, key: nil
-                    )
-                }
-            }
+        let res = out.mutJoin2(data, key) { out, data, key in
+            hash(out: out, bytes: data, key: key)
         }
-        guard res else { throw Error.hashingError }
+        guard res else { throw Blake2Error.hashingError }
         return out
-    }
-    
-    private var implementation: Blake2Impl
-    private var size: Int
-    
-    private static func implementation(for type: B2Type) -> Blake2Impl.Type {
-        switch type {
-        case .b2b: return Blake2b.self
-        case .b2s: return Blake2s.self
-        case .b2bp: return Blake2bp.self
-        case .b2sp: return Blake2sp.self
-        case .b2xb: return Blake2xb.self
-        case .b2xs: return Blake2xs.self
-        }
     }
 }

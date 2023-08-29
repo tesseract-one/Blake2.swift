@@ -21,6 +21,7 @@ let package = Package(
         ),
         .testTarget(
             name: "Blake2Tests",
-            dependencies: ["Blake2"])
+            dependencies: ["Blake2"],
+            resources: [.copy("blake2-kat.json")])
     ]
 )

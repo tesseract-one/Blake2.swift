@@ -12,22 +12,26 @@ let BLAKE2S_OUTBYTES = 32
 let BLAKE2S_BLOCKBYTES = 64
 
 final class Blake2sTests: XCTestCase {
+    let tests = Resources.inst.blake2tests().blake2s
+    
     func testSimpleApi() {
-        for (_in, key, hash) in BLAKE2S_KAT {
-            let computed = try? Blake2.hash(.b2s, size: BLAKE2S_OUTBYTES, bytes: _in, key: key)
-            XCTAssertEqual(Data(hash), computed)
+        for test in tests {
+            let computed = try? Blake2s.hash(size: BLAKE2S_OUTBYTES,
+                                             data: test.in, key: test.key)
+            XCTAssertEqual(test.out, computed)
         }
     }
     
     func testStreamingApi() {
-        var buf = [UInt8](repeating: 0, count: BLAKE2S_KAT.count)
+        let tests = self.tests.keyed
+        var buf = [UInt8](repeating: 0, count: tests.count)
         for i in 0..<buf.count {
             buf[i] = UInt8(i)
         }
         for step in 1..<BLAKE2S_BLOCKBYTES {
-            for i in 0..<BLAKE2S_KAT.count {
-                let (_, key, expected) = BLAKE2S_KAT[i]
-                let oBlake2 = try? Blake2(.b2s, size: BLAKE2S_OUTBYTES, key: key)
+            for i in 0..<tests.count {
+                let test = tests[i]
+                let oBlake2 = try? Blake2s(size: BLAKE2S_OUTBYTES, key: test.key)
                 XCTAssertNotNil(oBlake2)
                 guard var blake2 = oBlake2 else { continue }
                 
@@ -40,7 +44,7 @@ final class Blake2sTests: XCTestCase {
                 }
                 blake2.update(Array(buf[start..<start+mlen]))
                 let hash = try? blake2.finalize()
-                XCTAssertEqual(Data(expected), hash)
+                XCTAssertEqual(test.out, hash)
             }
         }
     }
