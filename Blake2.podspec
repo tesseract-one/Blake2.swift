@@ -3,10 +3,6 @@ Pod::Spec.new do |s|
   s.version          = '999.99.9'
   s.summary          = 'Swift wrapper for reference C implementation of Blake2 hashes.'
 
-  s.description      = <<-DESC
-Swift wrapper for reference C implementation of Blake2 hashes.
-                       DESC
-
   s.homepage         = 'https://github.com/tesseract-one/Blake2.swift'
 
   s.license          = { :type => 'Apache 2.0', :file => 'LICENSE' }
@@ -26,6 +22,6 @@ Swift wrapper for reference C implementation of Blake2 hashes.
   s.test_spec 'Tests' do |ts|
     ts.platforms = base_platforms
     ts.source_files = 'Tests/Blake2Tests/**/*.swift'
-    ts.resource = 'Tests/SubstrateTests/blake2-kat.json'
+    ts.resources = 'Tests/Blake2Tests/*.json'
   end
 end
